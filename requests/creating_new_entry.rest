@@ -1,0 +1,9 @@
+POST http://localhost:3001/api/notes
+Content-Type: application/json
+
+{
+  "name":"Kuba",
+  "number":"4123-23",
+  "content": "Ensussre still works",
+  "important": true
+}

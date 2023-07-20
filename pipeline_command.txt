@@ -1,0 +1,1 @@
+rm -rf build && cd Frontend/ && npm run build && mv build ./.. && cd ./.. && npm start
