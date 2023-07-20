@@ -3,7 +3,7 @@ const app = express()
 const cors = require('cors')
 require('dotenv').config()
 
-const Note = require('./models/note')
+const Entry = require('./models/entry')
 
 const requestLogger = (request, response, next) => {
   console.log('Method:', request.method)
@@ -34,43 +34,43 @@ app.use(requestLogger)
 app.use(express.static('build'))
 
 app.get('/info', (request, response) => {
-  Note.find({}).then(notes => {
-    const number = notes.length
+  Entry.find({}).then(entries => {
+    const number = entries.length
     date = new Date()
     response.send(`Phonebook has info for ${number} people <br/ > <br/ >${date}`)
   })
 })
 
-app.get('/api/notes', (request, response) => {
-  Note.find({}).then(notes => {
-    response.json(notes)
+app.get('/api/persons', (request, response) => {
+  Entry.find({}).then(entries => {
+    response.json(entries)
   })
 })
 
-app.post('/api/notes', (request, response, next) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
   if (body.name === undefined || body.number === undefined) {
     return response.status(400).json({ error: 'name or number missing' })
   }
 
-  const note = new Note({
+  const entry = new Entry({
     name: body.name,
     number: body.number,
   })
 
-  note.save()
-  .then(savedNote => {
-    response.json(savedNote)
+  entry.save()
+  .then(savedEntry => {
+    response.json(savedEntry)
   })
   .catch(error => next(error))
 })
 
-app.get('/api/notes/:id', (request, response, next) => {
-  Note.findById(request.params.id)
-    .then(note => {
-      if (note) {
-        response.json(note)
+app.get('/api/persons/:id', (request, response, next) => {
+  Entry.findById(request.params.id)
+    .then(entry => {
+      if (entry) {
+        response.json(entry)
       } else {
         response.status(404).end()
       }
@@ -78,23 +78,23 @@ app.get('/api/notes/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.delete('/api/notes/:id', (request, response, next) => {
-  Note.findByIdAndRemove(request.params.id)
+app.delete('/api/persons/:id', (request, response, next) => {
+  Entry.findByIdAndRemove(request.params.id)
     .then(result => {
       response.status(204).end()
     })
     .catch(error => next(error))
 })
 
-app.put('/api/notes/:id', (request, response, next) => {
+app.put('/api/persons/:id', (request, response, next) => {
   const { name, number } = request.body
 
-  Note.findByIdAndUpdate(
+  Entry.findByIdAndUpdate(
       request.params.id,
       {name, number}, { new: true, runValidators: true, context: 'query' }
   )
-    .then(updatedNote => {
-      response.json(updatedNote)
+    .then(updatedEntry => {
+      response.json(updatedEntry)
     })
     .catch(error => next(error))
 })

@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
-import Note from './components/Note'
+import Entry from './components/Entry'
 import Notification from './components/Notification'
-import Footer from './components/Footer'
-import noteService from './services/notes'
+import entryService from './services/entries'
 
 const App = () => {
-  const [notes, setNotes] = useState([
+  const [entries, setEntries] = useState([
   {
       "name": "Arto Hellas",
       "number": "040-123456",
@@ -18,28 +17,28 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
-    noteService
+    entryService
       .getAll()
-      .then(initialNotes => {
-        setNotes(initialNotes)
+      .then(initialEntries => {
+        setEntries(initialEntries)
       })
   }, [])
 
-  const addNote = (event) => {
+  const addEntry = (event) => {
     event.preventDefault()
 
-    const noteObject = {
+    const entryObject = {
       name: newName,
       number: newNumber,
     }
 
-    if(notes.find(note => note.name === newName)) {
+    if(entries.find(entry => entry.name === newName)) {
       console.log("Name already in database!")
-      const note = notes.find(note => note.name === newName)
-      const id = note.id
-      noteService
-        .update(id, noteObject).then(returnedNote => {
-          setNotes(notes.map(note => note.id !== id ? note : returnedNote))
+      const entry = entries.find(entry => entry.name === newName)
+      const id = entry.id
+      entryService
+        .update(id, entryObject).then(returnedEntry => {
+          setEntries(entries.map(entry => entry.id !== id ? entry : returnedEntry))
           setNewName('')
           setNewNumber('')
         })
@@ -55,10 +54,10 @@ const App = () => {
         })
 
     } else {
-    noteService
-      .create(noteObject)
-        .then(returnedNote => {
-        setNotes(notes.concat(returnedNote))
+    entryService
+      .create(entryObject)
+        .then(returnedEntry => {
+        setEntries(entries.concat(returnedEntry))
         setNewName('')
       })
       .catch(error => {
@@ -86,53 +85,51 @@ const App = () => {
   }
 
    const updateNumbdddder = id => {
-      const note = notes.find(n => n.id === id)
-      const changedNote = { ...note, number: 2 }
+      const entry = entries.find(n => n.id === id)
+      const changedEntry = { ...entry, number: 2 }
   
-      noteService
-        .update(id, changedNote).then(returnedNote => {
-          setNotes(notes.map(note => note.id !== id ? note : returnedNote))
+      entryService
+        .update(id, changedEntry).then(returnedEntry => {
+          setEntries(entries.map(entry => entry.id !== id ? entry : returnedEntry))
         })
         .catch(error => {
           setErrorMessage(
-            `Note '${note.content}' was already removed from server`
+            `Person '${entry.content}' was already removed from server`
           )
           setTimeout(() => {
             setErrorMessage(null)
           }, 5000)
-          setNotes(notes.filter(n => n.id !== id))
+          setEntries(entries.filter(n => n.id !== id))
         })
     }
 
     const deleteById = id => {
-      noteService
-        .deleteById(id).then(returnedNote => {
-          console.log("Delete note of id ${id}??", returnedNote);
-          setNotes(notes.filter(note => note.id != id))
+      entryService
+        .deleteById(id).then(returnedEntry => {
+          console.log("Delete entry of id ${id}??", returnedEntry);
+          setEntries(entries.filter(entry => entry.id != id))
         })
     }
 
   return (
     <div>
-      <h1>Notes app</h1>
       <Notification message={errorMessage} />
       <ul>
         <ul>
-          {notes.map(note => 
-            <Note
-              key={note.id}
-              note={note}
-              deleteById={() => deleteById(note.id)}
+          {entries.map(entry => 
+            <Entry
+              key={entry.id}
+              entry={entry}
+              deleteById={() => deleteById(entry.id)}
             />
           )}
         </ul>
       </ul>
-      <form onSubmit={addNote}>
+      <form onSubmit={addEntry}>
         <input placeholder="Name" value={newName} onChange={handleNameChange} />
         <input placeholder="Number" value={newNumber} onChange={handleNumberChange} />
         <button type="submit">save</button>
       </form>
-      <Footer />
     </div>
   )
 }
